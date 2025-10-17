@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@/lib/axiosInstance";
+import { AxiosError } from "axios";
 import { useParams } from "next/navigation";
 import {
   Accordion,
@@ -90,10 +91,10 @@ export default function TaskResponsesPage() {
       } else {
         throw new Error("Invalid response format");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to fetch task responses:", error);
       
-      if (error.response) {
+      if (error instanceof AxiosError && error.response) {
         // Server responded with error status
         const status = error.response.status;
         if (status === 404) {
@@ -105,7 +106,7 @@ export default function TaskResponsesPage() {
         } else {
           showAlert("error", error.response.data?.message || "Failed to fetch tasks");
         }
-      } else if (error.request) {
+      } else if (error instanceof AxiosError && error.request) {
         // Request made but no response
         showAlert("error", "Network error. Please check your connection");
       } else {
@@ -162,10 +163,10 @@ export default function TaskResponsesPage() {
       
       // Refresh task list
       await fetchTaskResponses();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to add response:", error);
       
-      if (error.response) {
+      if (error instanceof AxiosError && error.response) {
         const status = error.response.status;
         if (status === 400) {
           showAlert("error", error.response.data?.message || "Invalid response data");
@@ -180,7 +181,7 @@ export default function TaskResponsesPage() {
         } else {
           showAlert("error", "Failed to submit response");
         }
-      } else if (error.request) {
+      } else if (error instanceof AxiosError && error.request) {
         showAlert("error", "Network error. Please check your connection");
       } else {
         showAlert("error", "An unexpected error occurred");
